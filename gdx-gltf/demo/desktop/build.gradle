@@ -1,0 +1,58 @@
+apply plugin: 'application'
+
+dependencies {
+    api project(":demo:core")
+    implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+}
+    
+sourceCompatibility = 1.7
+sourceSets.main.java.srcDirs = [ "src/" ]
+sourceSets.test.java.srcDirs = [ "test/" ]
+
+project.ext.mainClassName = "net.mgsx.gltf.demo.DesktopLauncher"
+project.ext.assetsDir = new File("../android/assets");
+
+run {
+	workingDir = '../android/assets'
+	setIgnoreExitValue(true)
+}
+
+jar {
+	archiveBaseName.set("$appName-desktop")
+	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+	dependsOn configurations.runtimeClasspath
+	from '../android/assets'
+	exclude 'models'
+	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+	exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
+	dependencies {
+		exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+	}
+	manifest {
+		attributes 'Main-Class': project.mainClassName
+	}
+	doLast {
+		file(archiveFile).setExecutable(true, false)
+	}
+}
+
+task distDesktop(dependsOn: [jar]) {
+}
+
+eclipse {
+    project {
+        name = appName + "-desktop"
+    }
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			groupId project.group
+			artifactId project.name
+			version project.version
+			from components.java
+		}
+	}
+}

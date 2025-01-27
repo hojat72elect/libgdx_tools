@@ -1,0 +1,7 @@
+allprojects {
+    ext {
+        appName = "gdx-gltf-demo"
+    }
+}
+
+eclipse.project.name = appName

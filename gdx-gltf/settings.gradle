@@ -1,0 +1,9 @@
+include ":gltf"
+
+include ":demo"
+include ":demo:core"
+include ":demo:desktop"
+// include ":demo:android"
+include ":demo:html"
+
+include ":ibl-composer"
