@@ -1,0 +1,3 @@
+rootProject.name = 'vis-ui'
+rootProject.buildFileName = 'build.gradle'
+include 'ui', 'usl'

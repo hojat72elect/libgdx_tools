@@ -1,0 +1,93 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+}
+
+allprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    apply plugin: 'java-library'
+
+    repositories {
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        mavenLocal()
+    }
+}
+
+ext {
+    projectGroup = "gdx-ai"
+    gdxVersion = '1.11.0'
+
+    isReleaseBuild = {
+        return project.hasProperty("RELEASE")
+    }
+
+    getReleaseRepositoryUrl = {
+        return project.hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+                : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    }
+
+    getSnapshotRepositoryUrl = {
+        return project.hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+                : "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+
+    getRepositoryUsername = {
+        return project.hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
+    }
+
+    getRepositoryPassword = {
+        return project.hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
+    }
+
+}
+
+/** needed to disable Java 8 doclint which throws errors **/
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
+}
+
+project(":gdx-ai") {
+    version project.getProperty('version') + (isReleaseBuild() ? "" : "-SNAPSHOT")
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(Test).configureEach {
+        systemProperty 'file.encoding', 'UTF-8'
+    }
+
+
+    dependencies {
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+    }
+
+    apply from: '../publish.gradle'
+
+}
+
+project(":tests") {
+    dependencies {
+        implementation project(":gdx-ai")
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    }
+}
+
+tasks.eclipse.doLast {
+    delete ".project"
+}
