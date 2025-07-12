@@ -1,0 +1,46 @@
+allprojects {
+
+    apply plugin: "java-library"
+
+
+    //Force gradle snapshot resolution to be now
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+
+    ext {
+        appName = "talos"
+
+        isReleaseBuild = {
+            return project.hasProperty("RELEASE")
+        }
+
+        getReleaseRepositoryUrl = {
+            return project.hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+                    : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2"
+        }
+
+        getSnapshotRepositoryUrl = {
+            return project.hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+                    : "https://s01.oss.sonatype.org/content/repositories/snapshots"
+        }
+    }
+
+    if (!isReleaseBuild()) {
+        version += "-SNAPSHOT"
+    }
+
+
+    sourceCompatibility = "1.8"
+    targetCompatibility = "1.8"
+
+    repositories {
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+        maven { url "https://s01.oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url "https://jitpack.io" }
+    }
+}

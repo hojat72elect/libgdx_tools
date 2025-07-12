@@ -1,0 +1,108 @@
+[1.5.0]
+- Scene Editor addon with a whole sweet of features bellow
+- Scenes and Prefabs
+- Importer for 9patch files
+- ECS like GameObject/Component system
+- File explorer
+- Property system to edit individual components and other property holders
+- Game Object templates
+- Transform system, and useful gizmos
+- Support for nested objects
+- Support for particle effects, and linking to TLS
+- Metadata system for each asset
+- Multiple camera system, and camera previews
+
+[1.4.2]
+- Material Module for 2D/3D preview of shader code output
+- External shader module with annotation support
+- Pixel Shader module now allows pass through output of it's code
+
+[1.4.1]
+- Changed spine runtime version to 4.0
+- Added pivot point functionality
+
+[1.4.0]
+- Shader graph can now save results as PNG
+- TargetModule is an eat way to shoot particles to certain configurable destinations
+
+[1.3.0]
+- Ribbon refactor for optimisation - now pools accumulator data
+- Shader graph now can theoretically support texture region's instead of only raw textures
+- Shader graph refactor to support shader templates for custom code
+- Shader graph now has export RAW option to export shader as is, but can also export XML that only contains portions of code
+- Suport for ribbons to use shaded drawable as drawable
+
+[1.2.0]
+- Various Buffixes
+- Shadergraph addon (this is a big deal)
+- Refactor of node system and node board for future modifications of existing particle graph
+
+[1.1.0]
+- Read only timeline for BVB
+- Read only timeline for Talos
+- Data simulation emitter added to runtime but not used yet (will be able to play effects in "reverse"), which is needed for 1.1.1
+- Some stability and bug fixes on draw order
+- Fixed bug with multiple input module not working properly
+
+[1.0.8]
+- Added nine patch drawable for particles
+- Particle position is now remembered in project data
+- Distributed mode now distributes random values more smoothly (but slower)
+
+
+[1.0.7]
+- Added Ribbon renderer and module to render nice trails after moving particles
+- Added physics module to produce velocity and angle values from sum of applied forces (given mass is 1)
+- Civilized Error Reporting will now prevent app from crashing and closing
+- Random Range Module now supports input slots
+- System Input Module now exposes particle seed for randomness operations
+- Various Bugfixes
+
+[1.0.6]
+- Support for bezier curve logic in Beam Drawable. Adds left and right tangents.
+- Sprite animations are now supported with FlipBook module
+- Camera pos and zoom are now saving and loading in/from .tls file metadata
+- Added fake motion blur module that calculates particle size based on how fast it moves
+- Added turbulence vector field module alongside with adapters to convert from polar to cartesian and back
+- Added tab so multiple projects can be worked on at once
+- Now last open/save/export locations are remembered to suggest in dialog as default
+- New architecture to support add-on's and multi project behavior (.tls projects now how to save and behave as well as .bvb projects)
+- Added Spine animation bone attachment tool - big deal.
+- Attractor module - makes particles start in one direction but then move towards attractor
+- Recently Opened files menu now remembers your last open
+- Open/Save/Export dialogs now remember your last choice
+- Added Export As option, which means that export is a quick export to last location with Ctrl+E, while export as will ask for path
+- Fixed bug with emitters not deleting properly
+- Added Undo/Redo functionality using snapshot method.
+- Externally changed library files are now tracked and detected and auto swapped
+
+[1.0.5]
+- legacy libGDX particle file importer full functionality
+- Modules can now be renamed with double click on the title
+- Full Copy/Paste functionality for modules from emitter to the emitter. Works between different Talos windows.
+- Additive blend mode support in renderer and config properties for emitter
+- Global dynamic user set vars (global scope input)
+- Dynamic Drag point support for visualizing vector2 values in the preview window
+- Filtered search drop-down for module creation
+- Dropping curve in empty location auto-open's module popup.
+- Preview supports background and foreground images.
+- Viewport width can be changed with exact numbers in input box instead of just scroll for zoom
+- Particle in the preview window can be moved with right-click
+- Module multi-select with rectangle hit, with SHIFT, and with Ctrl+A
+- Categorized module list
+- Some modules now have their default values exposed as input fields
+- Performance numbers such as triangles, particle count, render times and more shown in preview
+- Runtime: attached mode
+- Runtime: loopable effects and support for API methods such as pause/start/stop allow completion
+- Batch legacy import functionality
+- Export for runtime format
+- Settings dialog for default asset location
+- Module Grouping with Ctrl+G, color and custom text for module groups
+- Up & Down positioning for emitters.
+- Fixed samples list to work, now you can see 3 example .tls in File->Samples menu
+- Offset dynamic shape module
+- Module to script in java code and manipulate inputs/outputs
+- Beam Renderer module
+- Random Input slot module
+- Simplex Noise module
+- From To to Position/Size/Rotation converter module

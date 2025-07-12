@@ -1,0 +1,80 @@
+name: Deploy Desktop
+on:
+  push:
+    branches:
+      - master
+jobs:
+  Build-Desktop-And-Snapshot:
+    runs-on: ubuntu-latest
+    env:
+      ORG_GRADLE_PROJECT_GITHUB_USERNAME: ${{ github.actor }}
+      ORG_GRADLE_PROJECT_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.NEXUS_USERNAME }}
+      ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.NEXUS_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+            submodules: recursive
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Build with Gradle
+        run: |
+          ./gradlew runtimes:talos:publishToMavenCentral
+          ./gradlew runtimes:talos-libgdx:publishToMavenCentral
+          ./gradlew runtimes:talos-bongo:publishToMavenCentral
+          ./gradlew tools:publishToMavenCentral
+          ./gradlew editor-desktop:dist
+          ./gradlew editor-desktop-bootstrap:genConfig
+
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: 'just-a-placeholder-so-we-dont-get-errors'
+
+      - name: Adding Known Hosts
+        run: ssh-keyscan -H ${{ secrets.SSH_SERVER }} >> ~/.ssh/known_hosts
+
+      - name: Make dir in prep for binaries
+        run: ssh ${{secrets.SSH_SERVER_USER }}@${{secrets.SSH_SERVER }} "mkdir -p /var/www/editor.talosvfx.com/raw-editor-binaries"
+
+      - name: Deploy binary jar to server with scp
+        run: scp -r ./editor-desktop/build/libs/* ${{secrets.SSH_SERVER_USER }}@${{secrets.SSH_SERVER }}:/var/www/editor.talosvfx.com/raw-editor-binaries
+
+      - name: Deploy config with scp
+        run: scp -r ./editor-desktop-bootstrap/dist/* ${{secrets.SSH_SERVER_USER }}@${{secrets.SSH_SERVER }}:/var/www/editor.talosvfx.com/raw-editor-binaries
+
+      - name: Execute repo gen
+        run: ssh ${{secrets.SSH_SERVER_USER }}@${{secrets.SSH_SERVER }} 'bash -s' < ./editor-desktop-bootstrap/remote-repogen.sh
+
+      - name: Notify Discord
+        if: always()
+        uses: tsickert/discord-webhook@v5.3.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          embed-title: New TalosVFX build available!
+          embed-description: |
+            Developer: [`${{ github.actor }}`](https://github.com/${{ github.actor }})
+            GH Actions Run: [`${{ github.run_id }}`](https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}) 
+            Commit SHA: [`${{ github.sha }}`](https://github.com/${{github.repository}}/commit/${{github.sha}})
+            Branch: [`${{ github.ref_name }}`]
+            State: [`${{ job.status }}`]
+          embed-color: 15548997
+      - name: Slack notify
+        uses: ravsamhq/notify-slack-action@v2
+        if: always()
+        with:
+          status: ${{ job.status }}
+          notification_title: "{workflow} has {status_message}"
+          message_format: "{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>"
+          footer: "Linked Repo <{repo_url}|{repo}>"
+          notify_when: "success,failure"
+          mention_users: "U0160UUNH8S,U0080UUAA9N"
+          mention_users_when: "failure,warnings"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

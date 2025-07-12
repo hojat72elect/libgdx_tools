@@ -1,0 +1,60 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    alias(libs.plugins.lombok)
+}
+
+dependencies {
+
+    api project(":engine")
+
+    api libs.slf4.gwt
+    api variantOf(libs.slf4.gwt) { classifier("sources") }
+    api variantOf(libs.slf4j.api) { classifier("sources") }
+
+    api libs.artemis.gwt
+    api variantOf(libs.artemis.gwt) { classifier("sources") }
+
+    api variantOf(libs.libgdx) { classifier("sources") }
+
+    api libs.libgdx.gwt
+    api variantOf(libs.libgdx.gwt) { classifier("sources") }
+
+    api libs.freetype.gwt
+    api variantOf(libs.freetype.gwt) { classifier("sources") }
+
+    api variantOf(libs.lombok) { classifier("sources") }
+
+
+    api variantOf(libs.artemis) { classifier("sources") }
+    api variantOf(libs.artemis.libgdx.json) { classifier("sources") }
+    api variantOf(libs.artemis.contrib.core) { classifier("sources") }
+    api variantOf(libs.artemis.contrib.eventbus) { classifier("sources") }
+    api variantOf(libs.artemis.contrib.singleton) { classifier("sources") }
+
+
+    api variantOf(libs.apache.commons.vfs2) { classifier("sources") }
+
+}
+
+task packageSources(type: Jar, dependsOn: [classes, jar]) {
+    from delombok
+    from sourceSets.main.resources.srcDirs
+    archiveClassifier = 'web'
+}
+
+artifacts {
+    api(packageSources)
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact packageSources
+            groupId project.group
+            artifactId project.name
+            version project.version
+        }
+    }
+}

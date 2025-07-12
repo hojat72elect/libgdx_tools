@@ -1,0 +1,73 @@
+plugins {
+    id 'java-library'
+    id "com.vanniktech.maven.publish" version "0.31.0"
+    alias(libs.plugins.lombok)
+}
+
+dependencies {
+    api libs.bongo.engine
+    api project(":runtimes:talos")
+}
+
+task packageSources(type: Jar, dependsOn: [classes, jar]) {
+    from delombok
+    from sourceSets.main.resources.srcDirs
+    archiveClassifier = 'web'
+}
+
+
+
+configurations {
+    web {
+        canBeConsumed true
+        canBeResolved false
+        extendsFrom implementation, runtimeOnly
+    }
+}
+
+
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.SonatypeHost
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+
+    configure(new JavaLibrary(new JavadocJar.Javadoc(), true))
+
+    coordinates(project.group, project.name, project.version)
+
+    pom {
+        name = "Talos Bongo Runtime"
+        description = "Talos Bongo for TalosVFX"
+        inceptionYear = "2020"
+        url = "https://github.com/rockbite/talos/"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = 'tomski'
+                name = 'Tom Wojciechowski'
+                url = "https://github.com/Tom-Ski/"
+            }
+            developer {
+                id = 'azakhary'
+                name = 'Avetis Zakharyan'
+                url = "https://github.com/azakhary/"
+            }
+        }
+        scm {
+            url = "https://github.com/rockbite/talos/"
+            connection = "scm:git:git://github.com/rockbite/talos.git"
+            developerConnection = "scm:git:ssh://git@github.com/rockbite/talos.git"
+        }
+    }
+
+    signAllPublications()
+}
+
